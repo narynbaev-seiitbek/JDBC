@@ -1,0 +1,371 @@
+Index: src/test/java/peaksoft/UserServiceTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package peaksoft;\n\nimport org.junit.After;\nimport org.junit.Before;\nimport org.junit.Test;\nimport org.junit.jupiter.api.Assertions;\nimport peaksoft.model.User;\nimport peaksoft.service.UserService;\nimport peaksoft.service.UserServiceImpl;\nimport peaksoft.util.Util;\n\nimport java.sql.*;\nimport java.util.List;\n\nimport static org.junit.jupiter.api.Assertions.*;\n\npublic class UserServiceTest {\n\n    private final UserService underTest = new UserServiceImpl();\n    private final Connection connection;\n\n    private final String testName = \"Will\";\n    private final String testLastName = \"Smith\";\n    private final byte testAge = 40;\n\n    private static final String CREATE_TABLE_IF_NOT_EXISTS_QUERY = \"\"\"\n            create table if not exists users (\n            id serial primary key,\n            name varchar not null,\n            last_name varchar not null,\n            age smallint not null\n            );\n            \"\"\";\n    public static final String DROP_TABLE_QUERY = \"drop table users;\";\n    public static final String DROP_TABLE_IF_EXIST_QUERY = \"drop table if exists users;\";\n    public String INSERT_INTO_QUERY = \"insert into users (name, last_name, age) values (?, ?, ?);\";\n    public static final String GET_QUANTITY_OF_USERS = \"select count(*) as quantity from users;\";\n\n    public UserServiceTest() throws SQLException {\n        connection = new Util().getConnection();\n    }\n\n    @Before\n    public void setUp() {\n        try (Statement statement = connection.createStatement()) {\n            statement.execute(DROP_TABLE_IF_EXIST_QUERY);\n            statement.execute(CREATE_TABLE_IF_NOT_EXISTS_QUERY);\n            saveNewUser(testName, testLastName, testAge);\n        } catch (SQLException e) {\n            e.printStackTrace();\n        }\n    }\n\n    @After\n    public void tearDown() {\n        try (Statement statement = connection.createStatement();) {\n            statement.execute(DROP_TABLE_IF_EXIST_QUERY);\n        } catch (SQLException e) {\n            e.printStackTrace();\n        }\n    }\n\n    @Test\n    public void dropUsersTable() {\n\n        underTest.dropUsersTable();\n\n        assertThrows(RuntimeException.class, () -> execute(DROP_TABLE_QUERY));\n    }\n\n    @Test\n    public void createUsersTable() {\n        // given\n        execute(DROP_TABLE_IF_EXIST_QUERY);\n\n        // then\n        underTest.createUsersTable();\n\n        // when\n        assertDoesNotThrow(() -> execute(DROP_TABLE_QUERY));\n    }\n\n    @Test\n    public void saveUser() {\n        // given\n        underTest.saveUser(testName, testLastName, testAge);\n\n        // then\n        int result = getQuantityOfUsers();\n\n        // when\n        assertEquals(2, result);\n    }\n\n    @Test\n    public void removeUserById() {\n        // given\n        saveNewUser(\"Zamir\", \"Sabyrzhanov\", (byte) 28);\n\n        // then\n        underTest.removeUserById(2);\n\n        // when\n        assertEquals(1, getQuantityOfUsers());\n    }\n\n    @Test\n    public void getAllUsers() {\n        // given\n        saveNewUser(testName, testLastName, testAge);\n\n        // then\n        List<User> result = underTest.getAllUsers();\n        int quantityOfUsers = getQuantityOfUsers();\n\n        // when\n        assertEquals(quantityOfUsers, result.size());\n    }\n\n    @Test\n    public void cleanUsersTable() {\n\n        // given\n        underTest.cleanUsersTable();\n        // then\n        int result = getQuantityOfUsers();\n\n        // when\n        assertEquals(0, result);\n    }\n\n    private int getQuantityOfUsers() {\n        int quantityOfUsers = -1;\n        try (Statement statement = connection.createStatement();\n             ResultSet resultSet = statement.executeQuery(GET_QUANTITY_OF_USERS);) {\n\n            if (!resultSet.next()) {\n                Assertions.fail(\"no result from query - \" + GET_QUANTITY_OF_USERS);\n            }\n\n            quantityOfUsers = resultSet.getInt(\"quantity\");\n        } catch (SQLException e) {\n            e.printStackTrace();\n        }\n        return quantityOfUsers;\n    }\n\n    private void saveNewUser(String name, String lastName, byte age) {\n        try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT_INTO_QUERY)) {\n            preparedStatement.setString(1, name);\n            preparedStatement.setString(2, lastName);\n            preparedStatement.setByte(3, age);\n            preparedStatement.execute();\n        } catch (SQLException e) {\n            e.printStackTrace();\n        }\n    }\n\n    public void execute(String query) {\n        try (Statement statement = connection.createStatement();) {\n            statement.execute(query);\n        } catch (SQLException e) {\n            throw new RuntimeException(e);\n        }\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/peaksoft/UserServiceTest.java b/src/test/java/peaksoft/UserServiceTest.java
+--- a/src/test/java/peaksoft/UserServiceTest.java	(revision 8fd349f76706b8b56c33b728061f718660dec91c)
++++ b/src/test/java/peaksoft/UserServiceTest.java	(date 1650437108810)
+@@ -12,6 +12,7 @@
+ import java.sql.*;
+ import java.util.List;
+ 
++import static org.junit.Assert.assertEquals;
+ import static org.junit.jupiter.api.Assertions.*;
+ 
+ public class UserServiceTest {
+Index: src/main/java/peaksoft/service/UserServiceImpl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package peaksoft.service;\n\nimport peaksoft.model.User;\n\nimport java.util.List;\n\npublic class UserServiceImpl implements UserService {\n\n    public void createUsersTable() {\n\n    }\n\n    public void dropUsersTable() {\n\n    }\n\n    public void saveUser(String name, String lastName, byte age) {\n\n    }\n\n    public void removeUserById(long id) {\n\n    }\n\n    public List<User> getAllUsers() {\n        return null;\n    }\n\n    public void cleanUsersTable() {\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/peaksoft/service/UserServiceImpl.java b/src/main/java/peaksoft/service/UserServiceImpl.java
+--- a/src/main/java/peaksoft/service/UserServiceImpl.java	(revision 8fd349f76706b8b56c33b728061f718660dec91c)
++++ b/src/main/java/peaksoft/service/UserServiceImpl.java	(date 1650437700069)
+@@ -1,31 +1,41 @@
+ package peaksoft.service;
+ 
++import peaksoft.dao.UserDao;
++import peaksoft.dao.UserDaoJdbcImpl;
+ import peaksoft.model.User;
+ 
++import java.sql.SQLException;
+ import java.util.List;
+ 
+ public class UserServiceImpl implements UserService {
+ 
++    private final UserDao dao = new UserDaoJdbcImpl();
++
++    public UserServiceImpl() throws SQLException {
++    }
++
+     public void createUsersTable() {
+-
++        dao.createUsersTable();
+     }
+ 
+     public void dropUsersTable() {
+-
++        dao.dropUsersTable();
+     }
+ 
+     public void saveUser(String name, String lastName, byte age) {
+-
++        dao.saveUser(name, lastName, age);
+     }
+ 
+     public void removeUserById(long id) {
+-
++        dao.removeUserById(id);
+     }
+ 
+     public List<User> getAllUsers() {
+-        return null;
++        return dao.getAllUsers();
++
+     }
+ 
+     public void cleanUsersTable() {
++        dao.cleanUsersTable();
+     }
+ }
+Index: src/main/java/peaksoft/Main.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package peaksoft;\n\npublic class Main {\n    public static void main(String[] args) {\n        // реализуйте алгоритм здесь\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/peaksoft/Main.java b/src/main/java/peaksoft/Main.java
+--- a/src/main/java/peaksoft/Main.java	(revision 8fd349f76706b8b56c33b728061f718660dec91c)
++++ b/src/main/java/peaksoft/Main.java	(date 1650437700065)
+@@ -1,7 +1,29 @@
+ package peaksoft;
+ 
++import peaksoft.dao.UserDaoJdbcImpl;
++
++import java.sql.SQLException;
++
+ public class Main {
+-    public static void main(String[] args) {
++    public static void main(String[] args) throws SQLException {
+         // реализуйте алгоритм здесь
++
++        UserDaoJdbcImpl userDaoJdbc = new UserDaoJdbcImpl();
++        userDaoJdbc.createUsersTable();
++        userDaoJdbc.dropUsersTable();
++        userDaoJdbc.dropUsersTable();
++
++
++//        userDaoJdbc.saveUser("Leo","Messi", (byte) 35);
++//        userDaoJdbc.saveUser("Cristiano","Ronaldo", (byte) 37);
++//        userDaoJdbc.saveUser("Andres","Iniesta", (byte) 36);
++//        userDaoJdbc.saveUser("Carles","Puiol", (byte) 42);
++
++//        userDaoJdbc.removeUserById(1);
++//
++//          userDaoJdbc.getAllUsers().forEach(System.out::println);
++//
++//        userDaoJdbc.cleanUsersTable();
++
+     }
+ }
+Index: src/main/java/peaksoft/util/Util.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package peaksoft.util;\n\nimport java.sql.Connection;\n\npublic class Util {\n    // реализуйте настройку соеденения с БД\n\n    public Connection getConnection() {\n        // ushul methoddgo connectino kaitarynyzdar\n        return null;\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/peaksoft/util/Util.java b/src/main/java/peaksoft/util/Util.java
+--- a/src/main/java/peaksoft/util/Util.java	(revision 8fd349f76706b8b56c33b728061f718660dec91c)
++++ b/src/main/java/peaksoft/util/Util.java	(date 1650437700064)
+@@ -1,12 +1,20 @@
+ package peaksoft.util;
+ 
+ import java.sql.Connection;
++import java.sql.DriverManager;
++import java.sql.SQLException;
+ 
+ public class Util {
++
+     // реализуйте настройку соеденения с БД
+ 
++    private final Connection connection;
++
++    public Util() throws SQLException {
++        connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres");
++    }
++
+     public Connection getConnection() {
+-        // ushul methoddgo connectino kaitarynyzdar
+-        return null;
++        return connection;
+     }
+ }
+Index: src/main/java/peaksoft/model/User.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package peaksoft.model;\n\nimport javax.persistence.*;\n\n@Table\npublic class User {\n    @Id\n    private Long id;\n\n    @Column\n    private String name;\n\n    @Column\n    private String lastName;\n\n    @Column\n    private Byte age;\n\n    public User() {\n    }\n\n    public User(String name, String lastName, Byte age) {\n        this.name = name;\n        this.lastName = lastName;\n        this.age = age;\n    }\n\n    public Long getId() {\n        return id;\n    }\n\n    public void setId(Long id) {\n        this.id = id;\n    }\n\n    public String getName() {\n        return name;\n    }\n\n    public void setName(String name) {\n        this.name = name;\n    }\n\n    public String getLastName() {\n        return lastName;\n    }\n\n    public void setLastName(String lastName) {\n        this.lastName = lastName;\n    }\n\n    public Byte getAge() {\n        return age;\n    }\n\n    public void setAge(Byte age) {\n        this.age = age;\n    }\n\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/peaksoft/model/User.java b/src/main/java/peaksoft/model/User.java
+--- a/src/main/java/peaksoft/model/User.java	(revision 8fd349f76706b8b56c33b728061f718660dec91c)
++++ b/src/main/java/peaksoft/model/User.java	(date 1650437700067)
+@@ -57,4 +57,13 @@
+         this.age = age;
+     }
+ 
++    @Override
++    public String toString() {
++        return "User{" +
++                "id=" + id +
++                ", name='" + name + '\'' +
++                ", lastName='" + lastName + '\'' +
++                ", age=" + age +
++                '}';
++    }
+ }
+\ No newline at end of file
+Index: src/main/java/peaksoft/dao/UserDaoJdbcImpl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package peaksoft.dao;\n\nimport peaksoft.model.User;\n\nimport java.util.List;\n\npublic class UserDaoJdbcImpl implements UserDao {\n\n    public UserDaoJdbcImpl() {\n\n    }\n\n    public void createUsersTable() {\n\n    }\n\n    public void dropUsersTable() {\n\n    }\n\n    public void saveUser(String name, String lastName, byte age) {\n\n    }\n\n    public void removeUserById(long id) {\n\n    }\n\n    public List<User> getAllUsers() {\n        return null;\n    }\n\n    public void cleanUsersTable() {\n\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/peaksoft/dao/UserDaoJdbcImpl.java b/src/main/java/peaksoft/dao/UserDaoJdbcImpl.java
+--- a/src/main/java/peaksoft/dao/UserDaoJdbcImpl.java	(revision 8fd349f76706b8b56c33b728061f718660dec91c)
++++ b/src/main/java/peaksoft/dao/UserDaoJdbcImpl.java	(date 1650437700070)
+@@ -1,36 +1,101 @@
+ package peaksoft.dao;
+ 
+ import peaksoft.model.User;
++import peaksoft.util.Util;
+ 
++import java.sql.*;
++import java.util.ArrayList;
+ import java.util.List;
+ 
+ public class UserDaoJdbcImpl implements UserDao {
+ 
+-    public UserDaoJdbcImpl() {
++    private final Connection connection;
++
++    public UserDaoJdbcImpl() throws SQLException {
++
++        connection = new Util().getConnection();
+ 
+     }
+ 
+     public void createUsersTable() {
+-
++        String query = """
++                create table users (
++                id serial primary key,
++                name varchar(100) not null,
++                last_ame varchar(100) not null,
++                age smallint not null
++                );
++                """;
++        try (Statement statement = connection.createStatement()) {
++            statement.execute(query);
++        } catch (SQLException e) {
++            throw new RuntimeException(e);
++        }
+     }
+ 
+     public void dropUsersTable() {
+-
++        String query = " drop table if exists users;";
++        try (Statement statement = connection.createStatement()) {
++            statement.execute(query);
++            System.out.println("Successfully deleted");
++        } catch (SQLException e) {
++            throw new RuntimeException(e);
++        }
+     }
+ 
+     public void saveUser(String name, String lastName, byte age) {
+-
++        String query = """
++                insert into users(name,last_name,age)
++                values(?,?,?);
++                """;
++        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
++            preparedStatement.setString(1, name);
++            preparedStatement.setString(2, lastName);
++            preparedStatement.setByte(3, age);
++            preparedStatement.execute();
++        } catch (SQLException e) {
++            throw new RuntimeException(e);
++        }
+     }
+ 
+     public void removeUserById(long id) {
+-
++        String query = """
++                delete from users where id = ?;
++                """;
++        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
++            preparedStatement.setLong(1, id);
++            preparedStatement.execute();
++        } catch (SQLException e) {
++            throw new RuntimeException(e);
++        }
+     }
+ 
+     public List<User> getAllUsers() {
+-        return null;
++        String query = "select * from users";
++        List<User> userList = new ArrayList<>();
++        try (Statement statement = connection.createStatement()) {
++            ResultSet resultSet = statement.executeQuery(query);
++            while (resultSet.next()) {
++                User user = new User();
++                user.setId(resultSet.getLong(1));
++                user.setName(resultSet.getString("name"));
++                user.setLastName(resultSet.getString("last_name"));
++                user.setAge(resultSet.getByte(4));
++                userList.add(user);
++            }
++        } catch (SQLException e) {
++            throw new RuntimeException(e);
++        }
++        return userList;
+     }
+ 
+     public void cleanUsersTable() {
+-
++        String query = "truncate table users;";
++        try (Statement statement = connection.createStatement()) {
++            statement.execute(query);
++            System.out.println("Successfully cleaned");
++        } catch (SQLException e) {
++            throw new RuntimeException(e);
++        }
+     }
+ }
+\ No newline at end of file
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"AutoImportSettings\">\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\n  </component>\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"ffc76fc2-6462-40db-a424-2f3794b7524f\" name=\"Changes\" comment=\"\">\n      <change beforePath=\"$PROJECT_DIR$/.idea/misc.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/misc.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/pom.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/pom.xml\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"JpbToolWindowState\">\n    <option name=\"myId2FirstActivated\">\n      <map>\n        <entry key=\"com.haulmont.jpb.jpaPalette\" value=\"true\" />\n        <entry key=\"com.haulmont.jpb.jpaStructure\" value=\"true\" />\n      </map>\n    </option>\n    <option name=\"myId2Visible\">\n      <map>\n        <entry key=\"com.haulmont.jpb.jpaPalette\" value=\"false\" />\n        <entry key=\"com.haulmont.jpb.jpaStructure\" value=\"false\" />\n      </map>\n    </option>\n  </component>\n  <component name=\"MarkdownSettingsMigration\">\n    <option name=\"stateVersion\" value=\"1\" />\n  </component>\n  <component name=\"ProjectId\" id=\"283D1bnFyzLObAkmOQ3lx6L1l27\" />\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\" />\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n    <option name=\"showVisibilityIcons\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\"><![CDATA[{\n  \"keyToString\": {\n    \"RunOnceActivity.OpenProjectViewOnStart\": \"true\",\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\n    \"SHARE_PROJECT_CONFIGURATION_FILES\": \"true\",\n    \"WebServerToolWindowFactoryState\": \"false\",\n    \"last_opened_file_path\": \"/Users/beksultanmamatkadyruulu/Java/JDBCAndHibernateTask_Java5/src/test\",\n    \"project.structure.last.edited\": \"Modules\",\n    \"project.structure.proportion\": \"0.15\",\n    \"project.structure.side.proportion\": \"0.2\"\n  }\n}]]></component>\n  <component name=\"RecentsManager\">\n    <key name=\"CopyFile.RECENT_KEYS\">\n      <recent name=\"$PROJECT_DIR$/src/test\" />\n      <recent name=\"$PROJECT_DIR$/src/main\" />\n    </key>\n  </component>\n  <component name=\"RunManager\">\n    <configuration name=\"UserServiceTest\" type=\"JUnit\" factoryName=\"JUnit\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"JDBCAndHibernateTask_Java5\" />\n      <extension name=\"coverage\">\n        <pattern>\n          <option name=\"PATTERN\" value=\"peaksoft.*\" />\n          <option name=\"ENABLED\" value=\"true\" />\n        </pattern>\n      </extension>\n      <option name=\"PACKAGE_NAME\" value=\"peaksoft\" />\n      <option name=\"MAIN_CLASS_NAME\" value=\"peaksoft.UserServiceTest\" />\n      <option name=\"TEST_OBJECT\" value=\"class\" />\n      <method v=\"2\">\n        <option name=\"Make\" enabled=\"true\" />\n        <option name=\"com.soywiz.korge.intellij.UpdateResourceBeforeRunTask\" enabled=\"false\" />\n      </method>\n    </configuration>\n    <recent_temporary>\n      <list>\n        <item itemvalue=\"JUnit.UserServiceTest\" />\n      </list>\n    </recent_temporary>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"ffc76fc2-6462-40db-a424-2f3794b7524f\" name=\"Changes\" comment=\"\" />\n      <created>1650436161691</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1650436161691</updated>\n      <workItem from=\"1650436163029\" duration=\"900000\" />\n    </task>\n    <servers />\n  </component>\n  <component name=\"TypeScriptGeneratedFilesManager\">\n    <option name=\"version\" value=\"3\" />\n  </component>\n  <component name=\"Vcs.Log.Tabs.Properties\">\n    <option name=\"TAB_STATES\">\n      <map>\n        <entry key=\"MAIN\">\n          <value>\n            <State />\n          </value>\n        </entry>\n      </map>\n    </option>\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 8fd349f76706b8b56c33b728061f718660dec91c)
++++ b/.idea/workspace.xml	(date 1650437754660)
+@@ -5,9 +5,13 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="ffc76fc2-6462-40db-a424-2f3794b7524f" name="Changes" comment="">
+-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/main/java/peaksoft/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/peaksoft/Main.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/main/java/peaksoft/dao/UserDaoJdbcImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/peaksoft/dao/UserDaoJdbcImpl.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/main/java/peaksoft/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/peaksoft/model/User.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/main/java/peaksoft/service/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/peaksoft/service/UserServiceImpl.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/main/java/peaksoft/util/Util.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/peaksoft/util/Util.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/test/java/peaksoft/UserServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/peaksoft/UserServiceTest.java" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -41,18 +45,15 @@
+     <option name="showLibraryContents" value="true" />
+     <option name="showVisibilityIcons" value="true" />
+   </component>
+-  <component name="PropertiesComponent"><![CDATA[{
+-  "keyToString": {
+-    "RunOnceActivity.OpenProjectViewOnStart": "true",
+-    "RunOnceActivity.ShowReadmeOnStart": "true",
+-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+-    "WebServerToolWindowFactoryState": "false",
+-    "last_opened_file_path": "/Users/beksultanmamatkadyruulu/Java/JDBCAndHibernateTask_Java5/src/test",
+-    "project.structure.last.edited": "Modules",
+-    "project.structure.proportion": "0.15",
+-    "project.structure.side.proportion": "0.2"
+-  }
+-}]]></component>
++  <component name="PropertiesComponent">
++    <property name="DatabaseDriversLRU" value="postgresql" />
++    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
++    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
++    <property name="WebServerToolWindowFactoryState" value="false" />
++    <property name="project.structure.last.edited" value="Project" />
++    <property name="project.structure.proportion" value="0.0" />
++    <property name="project.structure.side.proportion" value="0.0" />
++  </component>
+   <component name="RecentsManager">
+     <key name="CopyFile.RECENT_KEYS">
+       <recent name="$PROJECT_DIR$/src/test" />
+Index: .idea/dataSources.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/dataSources.xml b/.idea/dataSources.xml
+new file mode 100644
+--- /dev/null	(date 1650437754666)
++++ b/.idea/dataSources.xml	(date 1650437754666)
+@@ -0,0 +1,12 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
++    <data-source source="LOCAL" name="postgres@localhost" uuid="9cd9daea-0b36-43f7-ba3f-fc54112dd468">
++      <driver-ref>postgresql</driver-ref>
++      <synchronize>true</synchronize>
++      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
++      <jdbc-url>jdbc:postgresql://localhost:5432/postgres</jdbc-url>
++      <working-dir>$ProjectFileDir$</working-dir>
++    </data-source>
++  </component>
++</project>
+\ No newline at end of file
